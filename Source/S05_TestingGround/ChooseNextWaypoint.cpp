@@ -2,18 +2,24 @@
 
 #include "ChooseNextWaypoint.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "PatrollingGuard.h"
+
 #include "AIController.h"
+#include "PatrollingRoute.h"
 
 
 EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	AAIController* AIController = OwnerComp.GetAIOwner();
+	auto AICharcter = OwnerComp.GetAIOwner()->GetPawn();
 
-	APatrollingGuard* PatrollingGuard = Cast<APatrollingGuard>(AIController->GetPawn());
+	auto PatrollingRoute = AICharcter->FindComponentByClass<UPatrollingRoute>();
+	if (!PatrollingRoute) { return EBTNodeResult::Failed; }
+
 	
-	TArray<AActor*> PatrolingPoints = PatrollingGuard->TargetPoints;
+	TArray<AActor*> PatrolingPoints = PatrollingRoute->GetTargetPoints();
 
+	if (PatrolingPoints.Num() == 0) {
+		UE_LOG(LogTemp,Warning,TEXT("There is no pointing Route"))
+	}
 	auto BlackboardComp = OwnerComp.GetBlackboardComponent();
 	auto Index = BlackboardComp->GetValueAsInt(IndexKey.SelectedKeyName);
 	
