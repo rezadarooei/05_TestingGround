@@ -4,16 +4,23 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "PatrollingGuard.h"
 #include "AIController.h"
-
+#include "PatrolRouteComponent.h"
 
 EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	AAIController* AIController = OwnerComp.GetAIOwner();
-
-	APatrollingGuard* PatrollingGuard = Cast<APatrollingGuard>(AIController->GetPawn());
+	auto PatrollingGuard = OwnerComp.GetAIOwner()->GetPawn();
+	auto PatrolRoute = PatrollingGuard->FindComponentByClass<UPatrolRouteComponent>();
+	if (!ensure(PatrolRoute)) { return EBTNodeResult::Failed; }
 	
-	TArray<AActor*> PatrolingPoints = PatrollingGuard->TargetPoints;
+	
+	TArray<AActor*> PatrolingPoints = PatrolRoute->GetTargetPoints();
 
+	if (PatrolingPoints.Num()==0)
+	{ 
+		UE_LOG(LogTemp,Warning,TEXT("A guard Missing Points"))
+		return EBTNodeResult::Failed;
+	}
+// 
 	auto BlackboardComp = OwnerComp.GetBlackboardComponent();
 	auto Index = BlackboardComp->GetValueAsInt(IndexKey.SelectedKeyName);
 	
