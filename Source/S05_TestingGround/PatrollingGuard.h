@@ -13,6 +13,10 @@ UCLASS()
 class S05_TESTINGGROUND_API APatrollingGuard : public ATP_ThirdPersonCharacter
 {
 	GENERATED_BODY()
+	public:
+
+	UPROPERTY(EditAnywhere,Category="TargetPoints")
+	TArray<class AActor*> TargetPoints;
 	
 	
 	
